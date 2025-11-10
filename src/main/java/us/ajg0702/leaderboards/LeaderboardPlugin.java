@@ -203,7 +203,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         if(placeholders.register()) {
             getLogger().info("PAPI placeholders successfully registered!");
         } else {
-            getLogger().warning("Failed to register ajlb PAPI placeholders!");
+            getLogger().warning("Failed to register ajLeaderboard PAPI placeholders! Leaderboard display placeholders will not work!");
         }
 
         contextLoader = Bukkit.getPluginManager().isPluginEnabled("LuckPerms") ? new WithLPCtx(this) : new WithoutLPCtx(this);
