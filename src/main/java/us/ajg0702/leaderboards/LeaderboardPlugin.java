@@ -436,17 +436,16 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         for (String board : getTopManager().getBoards()) {
             long lastReset = topManager.getLastReset(board, type);
-            LocalDateTime lastResetDate = LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC);
             long estLastReset = type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
-            long lastResetConverted = lastResetDate.toEpochSecond(TimeUtils.getDefaultZoneOffset());
 
-            if(lastResetConverted < estLastReset) {
+            if(lastReset < estLastReset) {
                 Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset! "+lastReset+" < "+estLastReset);
                 resetNow.add(board);
             }
         }
 
         if(resetNow.size() > 0) {
+            Debug.info("Resetting " + type + " due to lastReset being before estimatedLastReset");
             getScheduler().runTaskAsynchronously(() -> {
                 try {
                     for (String board : resetNow) {
