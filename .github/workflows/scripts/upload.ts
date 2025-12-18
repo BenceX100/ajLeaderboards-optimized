@@ -64,7 +64,7 @@ if(!github?.event) {
 
 
 
-    console.log("Uploading to Modrinth...");
+    /*console.log("Uploading to Modrinth...");
 
     const modrinthData = new FormData();
 
@@ -104,7 +104,7 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
         console.warn("Modrinth response failed.", await modrinthResponse.text());
     } else {
         console.info("Modrinth succeeded.", await modrinthResponse.text())
-    }
+    }*/
 
 
 
@@ -150,6 +150,8 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
     if(firstResponse.ok) {
         const polymartResponseData = (await firstResponse.clone().json()).response;
 
+        console.info("Polymart first succeeded.", await firstResponse.text());
+
         const uploadData = new FormData();
         for (let [k, v] of Object.entries(polymartResponseData.upload.fields)) {
             uploadData.append(k, v as any);
@@ -169,7 +171,6 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
     if(!firstResponse.ok) {
         console.warn("Polymart first response failed.", await firstResponse.text());
     } else {
-        console.info("Polymart first succeeded.", await firstResponse.text());
 
         if(!uploadResponse?.ok) {
             console.warn("Polymart upload response failed.", await uploadResponse?.text())
