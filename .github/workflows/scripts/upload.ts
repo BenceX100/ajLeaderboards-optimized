@@ -64,7 +64,7 @@ if(!github?.event) {
 
 
 
-    /*console.log("Uploading to Modrinth...");
+    console.log("Uploading to Modrinth...");
 
     const modrinthData = new FormData();
 
@@ -104,7 +104,7 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
         console.warn("Modrinth response failed.", await modrinthResponse.text());
     } else {
         console.info("Modrinth succeeded.", await modrinthResponse.text())
-    }*/
+    }
 
 
 
