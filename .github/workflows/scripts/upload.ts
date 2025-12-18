@@ -119,14 +119,21 @@ ${changes.length > 1 ? `<br><a href="${github.event.compare}">View combined chan
     polymartData.set("title", `Pre-release v${version}`);
     polymartData.set("beta", "1");
     polymartData.set("message",
-`Note: This is a potentially unstable (and possibly untested) build. It is not guaranteed to work, and may have issues.
-If you do decide to run this, make sure to report any issues to support.
+        `
+<p>
+    Note: This is a potentially unstable (and possibly untested) build. It is not guaranteed to work, and may have issues.<br/>
+    If you do decide to run this, make sure to report any issues to support.
+</p>
 
-Changes in this build:
-${changes.map(c => `[url=${c.url}]${c.message}[/url]` + "\n").join()}
-
-${changes.length > 1 ? "\n" + `[url=${github.event.compare}]View combined changes[/url]` : ``}
-`);
+<p>
+    Changes in this build:
+    <ul>
+        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "<br/>\n").join()}
+    </ul>
+    
+    ${changes.length > 1 ? `<a href="${github.event.compare}">View combined changes</a>` : ``}
+</p>
+`.trim();
     polymartData.set("file", file);
 
     const polymartResponse = await fetch("https://api.polymart.org/v1/postUpdate", {
