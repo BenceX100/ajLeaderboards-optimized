@@ -117,9 +117,9 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
     polymartData.set("api_key", POLYMART_TOKEN);
     polymartData.set("resource_id", "2726");
     polymartData.set("version", version);
-    polymartData.set("title", `Pre-release v${version}`);
-    polymartData.set("beta", "1");
-    polymartData.set("message",
+    polymartData.set("update_title", `Pre-release v${version}`);
+    polymartData.set("tag", "beta");
+    polymartData.set("update_description",
         `
 <p>
     Note: This is a potentially unstable (and possibly untested) build. It is not guaranteed to work, and may have issues.<br/>
@@ -134,22 +134,48 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
     
     ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
 </p>
-`.trim();
-    polymartData.set("file", file);
 `.trim());
+    polymartData.set("file_name", file.name);
 
-    const polymartResponse = await fetch("https://api.polymart.org/v1/postUpdate", {
+    const firstResponse = await fetch("https://api.polymart.org/v1/doPostUpdate", {
         method: "POST",
         headers: {
             "User-Agent": "ajUpdater/2.0",
         },
         body: polymartData
-    })
+    });
 
-    if(!polymartResponse.ok) {
-        console.warn("Polymart response failed.", await polymartResponse.text());
+    let uploadResponse: Response | undefined = undefined;
+
+    if(firstResponse.ok) {
+        const polymartResponseData = (await firstResponse.clone().json()).response;
+
+        const uploadData = new FormData();
+        for (let [k, v] of Object.entries(polymartResponseData.upload.fields)) {
+            uploadData.append(k, v as any);
+        }
+        uploadData.append("file", file);
+
+        uploadResponse = await fetch(polymartResponseData.upload.url, {
+            method: "POST",
+            headers: {
+                "User-Agent": "ajUpdater/2.0",
+                "enctype": "multipart/form-data"
+            },
+            body: uploadData
+        })
+    }
+
+    if(!firstResponse.ok) {
+        console.warn("Polymart first response failed.", await firstResponse.text());
     } else {
-        console.error("Polymart succeeded.", await polymartResponse.text())
+        console.info("Polymart first succeeded.", await firstResponse.text());
+
+        if(!uploadResponse?.ok) {
+            console.warn("Polymart upload response failed.", await uploadResponse?.text())
+        } else {
+            console.info("Polymart upload succeeded.", await uploadResponse?.text())
+        }
     }
 
 
