@@ -42,7 +42,9 @@ public class ResetSaver {
             "\"",
             "|",
             "?",
-            "*"
+            "*",
+            "{",
+            "}"
     );
 
     public void save(String board, TimedType type) {
