@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
 
-    private final ExecutorService fetchService;
+    private final ThreadPoolExecutor fetchService;
     //private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     private final AtomicInteger fetching = new AtomicInteger(0);
@@ -43,27 +43,30 @@ public class TopManager {
 
     private final LeaderboardPlugin plugin;
     public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
-        ExecutorService executor;
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
         int keepAlive = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
+        ThreadFactory threadFactory;
         try {
-            // Check if method exists (Java 21+)
-            Method factory = Executors.class.getMethod("newVirtualThreadPerTaskExecutor");
-            executor = (ExecutorService) factory.invoke(null);
+            // Check if virtual thread methods exist (Java 21+)
+            Object builder = Thread.class.getMethod("ofVirtual").invoke(null);
+            builder.getClass().getMethod("name", String.class, Long.class)
+                    .invoke(builder, "AJLBFETCH", 0L);
+            threadFactory = (ThreadFactory) builder.getClass().getMethod("factory")
+                    .invoke(builder);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             plugin.getLogger().info("Using old thread pool due to running on an older Java version! If possible, updating to Java 21+ is recommended.");
             // Fallback to Java 11/17 logic
-            executor = new ThreadPoolExecutor(
-                    t, t,
-                    keepAlive, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<>(1000000, true),
-                    ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH")
-            );
-            ((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
+            threadFactory = ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH");
         }
-        fetchService = executor;
+        fetchService = new ThreadPoolExecutor(
+                t, t,
+                keepAlive, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1000000, true),
+                threadFactory
+        );
+        fetchService.allowCoreThreadTimeOut(true);
         plugin.getScheduler().runTaskTimerAsynchronously(() -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
