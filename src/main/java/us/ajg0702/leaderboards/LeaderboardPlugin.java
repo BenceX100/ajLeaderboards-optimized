@@ -223,6 +223,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Metrics metrics = new Metrics(this, 9338);
         metrics.addCustomChart(new Metrics.SimplePie("storage_method", () -> getCache().getMethod().getName()));
+        metrics.addCustomChart(new Metrics.SingleLineChart("boards", () -> getTopManager().getBoards().size()));
 
         PlaceholderExpansion placeholders = new PlaceholderExpansion(this);
         if(placeholders.register()) {
