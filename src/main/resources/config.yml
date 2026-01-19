@@ -20,6 +20,10 @@
 #                                                                                                           #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+# COMMENT WARNING: This config is auto-updated when necessary, which will keep your options but will overwrite comments.
+#  Old configs are always backed up with a different file name, so you can recover them if you want,
+#   but I'd recommend not adding custom comments to the config.
+#  Note that the default config is always available at https://wiki.ajg0702.us/ajQueue/configs/main
 
 
 # How often should we refresh the stats of online players?
@@ -250,7 +254,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 38
+config-version: 39
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
