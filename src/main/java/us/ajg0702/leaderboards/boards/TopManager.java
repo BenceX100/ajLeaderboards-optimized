@@ -57,6 +57,7 @@ public class TopManager {
                     .invoke(builder);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             plugin.getLogger().info("Using old thread pool due to running on an older Java version! If possible, updating to Java 21+ is recommended.");
+            Debug.info(e.getMessage());
             // Fallback to Java 11/17 logic
             threadFactory = ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH");
         }
