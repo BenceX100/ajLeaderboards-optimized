@@ -51,11 +51,12 @@ public class TopManager {
         try {
             // Check if virtual thread methods exist (Java 21+)
             Object builder = Thread.class.getMethod("ofVirtual").invoke(null);
-            builder.getClass().getMethod("name", String.class, Long.TYPE)
+            Class<?> builderInterface = Class.forName("java.lang.Thread$Builder$OfVirtual");
+            builderInterface.getMethod("name", String.class, Long.TYPE)
                     .invoke(builder, "AJLBFETCH", 0L);
             threadFactory = (ThreadFactory) builder.getClass().getMethod("factory")
                     .invoke(builder);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             plugin.getLogger().info("Using old thread pool due to running on an older Java version! If possible, updating to Java 21+ is recommended.");
             Debug.info(e.getClass().getName() + ": " + e.getMessage());
             // Fallback to Java 11/17 logic
