@@ -36,7 +36,11 @@ public class Cache {
 
 	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc limit 1 offset %d";
 	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc";
-	private final String GET_POSITION = "/*%s*/with N as (select *,ROW_NUMBER() OVER (order by '%s' %s, namecache desc) as position from '%s') select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',position,"+deltaBuilder()+" from N where 'id'=?";
+	private final String GET_POSITION = "/*%s*/select *,(" +
+				"select count(*) + 1 from '%s' as t2 where " +
+					"t2.'%s' %s t1.'%s' OR " +
+					"(t2.'%s' = t1.'%s' AND t2.namecache > t1.namecache)" + // simple tiebreaker to make sure it's at least consistent
+			") as position from '%s' as t1 where id = ?";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
 			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
 			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))",
@@ -57,6 +61,7 @@ public class Cache {
 	private final String UPDATE_RESET = "update '%s' set '%s'=?, '%s'=?, '%s'=? where id=?";
 	private final String QUERY_ALL = "select * from '%s'";
 	private final String CREATE_TIMESTAMP_INDEX = "create index %s_timestamp on '%s' (%s_timestamp)";
+	private final String CREATE_VALUE_INDEX = "create index %s on '%s' (%s)";
 
 
 
@@ -162,8 +167,12 @@ public class Cache {
 			PreparedStatement ps = conn.prepareStatement(String.format(
 					method.formatStatement(GET_POSITION),
 					board,
+					tablePrefix+board,
 					sortBy,
-					reverse ? "asc" : "desc",
+					reverse ? "<" : ">",
+					sortBy,
+					sortBy,
+					sortBy,
 					tablePrefix+board
 			));
 
@@ -190,23 +199,13 @@ public class Cache {
 			String suffix = "";
 			int position = -1;
 			try {
-				uuidraw = rs.getString(1);
-				name = rs.getString(3);
-				prefix = rs.getString(4);
-				suffix = rs.getString(5);
-				displayName = rs.getString(6);
-				position = rs.getInt(7);
-				value = rs.getDouble(sortByIndexes.computeIfAbsent(sortBy,
-						k -> {
-							try {
-								Debug.info("Calculating (statentry) column for "+sortBy);
-								return rs.findColumn(sortBy);
-							} catch (SQLException e) {
-								plugin.getLogger().log(Level.SEVERE, "Error while finding a column for "+sortBy, e);
-								return -1;
-							}
-						}
-				));
+				uuidraw = rs.getString("id");
+				name = rs.getString("namecache");
+				prefix = rs.getString("prefixcache");
+				suffix = rs.getString("suffixcache");
+				displayName = rs.getString("displaynamecache");
+				position = rs.getInt("position");
+				value = rs.getDouble(sortBy);
 			} catch(SQLException e) {
 				if(
 						!e.getMessage().contains("ResultSet closed") &&
@@ -355,6 +354,21 @@ public class Cache {
 			ps.close();
 
 			for (TimedType type : TimedType.values()) {
+
+				String index = type == TimedType.ALLTIME ? "value" : type.lowerName()+"_delta";
+				try {
+					ps = conn.prepareStatement(method.formatStatement(String.format(
+							CREATE_VALUE_INDEX,
+							index,
+							tablePrefix+name,
+							index
+							)));
+					ps.executeUpdate();
+				} catch(SQLException e) {
+					if(!e.getMessage().contains("already exists") && !e.getMessage().contains("Duplicate key") && e.getErrorCode() != 1061) throw e;
+				}
+				ps.close();
+
 				if(type == TimedType.ALLTIME) continue;
 
 				try {
@@ -706,7 +720,6 @@ public class Cache {
 					Integer position = plugin.getTopManager()
 							.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
 							.get(new BoardType(board, type));
-					Debug.info("Position for " + type + ": " + position);
 					if(position != null) {
 						StatEntry stat = plugin.getTopManager().getCachedStat(new PositionBoardType(position, board, type), false);
 						if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {

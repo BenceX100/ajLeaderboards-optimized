@@ -154,13 +154,31 @@ public class MysqlMethod implements CacheMethod {
                     for (TimedType type : TimedType.values()) {
                         if(type == TimedType.ALLTIME) continue;
                         try {
-                            conn.createStatement().executeUpdate("create index "+type.lowerName()+"_timestamp on `"+tableName+"` ("+type.lowerName()+"_timestamp)");
+                            conn.createStatement().executeUpdate(
+                                    "create index "+type.lowerName()+"_timestamp on `"+tableName+"` ("+type.lowerName()+"_timestamp)"
+                            );
                         } catch(SQLException e) {
                             if(!e.getMessage().contains("Duplicate key name")) throw e;
                         }
                     }
                     statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '4';");
                     version = 4;
+                }
+                if(version == 4) {
+                    for (TimedType type : TimedType.values()) {
+                        String index = type == TimedType.ALLTIME ? "value" : type.lowerName()+"_delta";
+                        try {
+                            conn.createStatement().executeUpdate(
+                                    "create index " + index + " on `"+tableName+"` (" + index + ")"
+                            );
+                        } catch(SQLException e) {
+                            if(!e.getMessage().contains("Duplicate key name") && e.getErrorCode() != 1061) {
+                                throw e;
+                            }
+                        }
+                    }
+                    statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '5';");
+                    version = 5;
                 }
             }
         } catch (SQLException e) {

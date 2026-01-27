@@ -123,6 +123,16 @@ public class H2Method implements CacheMethod {
                     statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '2';");
                     version = 2;
                 }
+                if(version == 2) {
+                    for (TimedType type : TimedType.values()) {
+                        String index = type == TimedType.ALLTIME ? "value" : type.lowerName()+"_delta";
+                        conn.createStatement().executeUpdate(
+                                "create index if not exists `" + index + "` on `"+tableName+"` (`" + index + "`)"
+                        );
+                    }
+                    statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '3';");
+                    version = 3;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
