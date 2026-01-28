@@ -91,30 +91,14 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     private final CompatScheduler compatScheduler = new CompatScheduler(this);
 
+    private final TrojanScanner trojanScanner = new TrojanScanner(this, getFile());
+
     @Override
     public void onLoad() {
-        // We scan for this l/M/x trojan on load because it can cause random bugs. Also because it's bad for ppl to have a trojan on their server.
-        try (Stream<String> stream = Files.lines(getFile().toPath(), StandardCharsets.ISO_8859_1)) {
+        // We scan for this l/M/x trojan on load because it can cause random bugs (especially with dependency loading)
+        // Also because it's bad for ppl to have a trojan on their server.
+        trojanScanner.scan();
 
-            String target = "l" + "/" + "M" + "/" + "x"; // split it up so the check doesn't trigger itself
-
-            if(stream.anyMatch(line -> line.contains(target))) {
-                getLogger().severe(
-                        "** CRITICAL ALERT ** I HAVE DETECTED THE " + target + " TROJAN!!\n" +
-                                "This trojan is known to cause random bugs in plugins, especially ajLeaderboards.\n" +
-                                "You should remove this trojan ASAP. I don't know for sure what it does as of writing, but nobody makes a trojan for good reasons.\n" +
-                                "At the very least its most likely a backdoor and/or infostealer. And we know for sure it causes random bugs.\n" +
-                                "For more info and how to remove this trojan, I've provided a guide here: https://wiki.ajg0702.us/ajlb-trojan"
-                );
-            }
-
-        } catch (Exception e) {
-            getLogger().warning(
-                    "Unable to scan for trojans! This could be fine, but this could be caused by interference by the trojan. " +
-                            "You can check manually using https://trojan-scanner.ajg0702.us/\n" +
-                            "Cause: " + e.getMessage()
-            );
-        }
         try {
             Path downloadPath = Paths.get(getDataFolder().getPath() + File.separator + "libs");
             ApplicationBuilder.appending("ajLeaderboards")
@@ -242,6 +226,17 @@ public class LeaderboardPlugin extends JavaPlugin {
         }
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
+
+
+        // We want to scan for the trojan again well after the server starts, because it infects jars after the server starts,
+        //  and older versions of the trojan break the ajLeaderboards jar (meaning this might be our only chance).
+        // I'm hoping this will reduce the number of people coming to support about this.
+
+        // Run the trojan scanner 2 minutes after loading in case we get infected not too long after loading
+        getScheduler().runTaskLaterAsynchronously(trojanScanner::scan, 2 * 60 * 20);
+
+        // Run the trojan scanner on an interval in case we get infected way later
+        getScheduler().runTaskTimerAsynchronously(trojanScanner::scan, 60 * 60 * 20, 6 * 60 * 60 * 120);
     }
 
     private Iterable<String> getSignPath(int i) {
