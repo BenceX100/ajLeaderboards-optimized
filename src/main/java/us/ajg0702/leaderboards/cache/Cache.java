@@ -60,8 +60,8 @@ public class Cache {
 	private final String QUERY_IDVALUE = "select id,'value' from '%s'";
 	private final String UPDATE_RESET = "update '%s' set '%s'=?, '%s'=?, '%s'=? where id=?";
 	private final String QUERY_ALL = "select * from '%s'";
-	private final String CREATE_TIMESTAMP_INDEX = "create index %s_timestamp on '%s' (%s_timestamp)";
-	private final String CREATE_VALUE_INDEX = "create index %s on '%s' (%s)";
+	private final String CREATE_TIMESTAMP_INDEX = "create index '%s_timestamp' on '%s' (%s_timestamp)";
+	private final String CREATE_VALUE_INDEX = "create index '%s' on '%s' (%s)";
 
 
 
