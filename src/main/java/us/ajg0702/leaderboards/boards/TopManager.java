@@ -174,7 +174,7 @@ public class TopManager {
     Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
     LoadingCache<PlayerBoardType, StatEntry> statEntryCache = CacheBuilder.newBuilder()
             .expireAfterAccess(1, TimeUnit.HOURS)
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(5, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> {
                 if(!notification.getCause().equals(RemovalCause.REPLACED)) statEntryLastRefresh.remove((PlayerBoardType) notification.getKey());
@@ -283,7 +283,7 @@ public class TopManager {
     Map<String, Long> boardSizeLastRefresh = new HashMap<>();
     LoadingCache<String, Integer> boardSizeCache = CacheBuilder.newBuilder()
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(15, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> {
                 if(!notification.getCause().equals(RemovalCause.REPLACED)) boardSizeLastRefresh.remove((String) notification.getKey());
@@ -344,7 +344,7 @@ public class TopManager {
     Map<BoardType, Long> totalLastRefresh = new HashMap<>();
     LoadingCache<BoardType, Double> totalCache = CacheBuilder.newBuilder()
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(15, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> {
                 if(!notification.getCause().equals(RemovalCause.REPLACED)) totalLastRefresh.remove((BoardType) notification.getKey());
