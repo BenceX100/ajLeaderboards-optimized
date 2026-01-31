@@ -36,6 +36,7 @@ import us.ajg0702.leaderboards.displays.signs.SignManager;
 import us.ajg0702.leaderboards.formatting.PlaceholderFormatter;
 import us.ajg0702.leaderboards.loaders.MessageLoader;
 import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
+import us.ajg0702.leaderboards.nms.legacy.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.leaderboards.utils.*;
 import us.ajg0702.utils.common.Config;
@@ -92,6 +93,9 @@ public class LeaderboardPlugin extends JavaPlugin {
     private final CompatScheduler compatScheduler = new CompatScheduler(this);
 
     private final TrojanScanner trojanScanner = new TrojanScanner(this, getFile());
+
+    private final ScheduledExecutorService scheduledExecutorService =
+            Executors.newScheduledThreadPool(1, ThreadFactoryProxy.getDefaultThreadFactory("AJLBSCHED"));
 
     @Override
     public void onLoad() {
@@ -383,6 +387,10 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public CompatScheduler getScheduler() {
         return getCompatScheduler();
+    }
+
+    public ScheduledExecutorService getScheduledExecutorService() {
+        return scheduledExecutorService;
     }
 
     Task updateTask;

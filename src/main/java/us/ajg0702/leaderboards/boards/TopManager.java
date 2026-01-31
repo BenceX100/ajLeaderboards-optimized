@@ -69,12 +69,13 @@ public class TopManager {
                 threadFactory
         );
         fetchService.allowCoreThreadTimeOut(true);
-        plugin.getScheduler().runTaskTimerAsynchronously(() -> {
+
+        plugin.getScheduledExecutorService().scheduleAtFixedRate(() -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
                 rolling.remove(0);
             }
-        }, 0, 2);
+        }, 0, 100, TimeUnit.MILLISECONDS);
 
         boardCache = initialBoards;
     }
@@ -614,34 +615,18 @@ public class TopManager {
     }
 
     public int getActiveFetchers() {
-        if(fetchService instanceof ThreadPoolExecutor) {
-            return ((ThreadPoolExecutor) fetchService).getActiveCount();
-        } else {
-            return -1;
-        }
+        return fetchService.getActiveCount();
     }
     public int getMaxFetchers() {
-        if(fetchService instanceof ThreadPoolExecutor) {
-            return ((ThreadPoolExecutor) fetchService).getMaximumPoolSize();
-        } else {
-            return -1;
-        }
+        return fetchService.getMaximumPoolSize();
     }
 
     public int getQueuedTasks() {
-        if(fetchService instanceof ThreadPoolExecutor) {
-            return ((ThreadPoolExecutor) fetchService).getQueue().size();
-        } else {
-            return -1;
-        }
+        return fetchService.getQueue().size();
     }
 
     public int getWorkers() {
-        if(fetchService instanceof ThreadPoolExecutor) {
-            return ((ThreadPoolExecutor) fetchService).getPoolSize();
-        } else {
-            return -1;
-        }
+        return fetchService.getPoolSize();
     }
 
     public boolean boardExists(String board) {
