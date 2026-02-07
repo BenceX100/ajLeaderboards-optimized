@@ -92,7 +92,12 @@ if(!github?.event) {
         "loaders": ["paper","spigot"],
         "featured": false,
         "game_versions": versions,
-        "dependencies": [],
+        "dependencies": [
+            {
+                project_id: "lKEzGugV",
+                dependency_type: "required"
+            }
+        ],
         "primary_file": "file"
     }));
     modrinthData.set("file", file)
