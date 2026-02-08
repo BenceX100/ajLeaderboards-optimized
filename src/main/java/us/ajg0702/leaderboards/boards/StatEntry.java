@@ -35,8 +35,6 @@ public class StatEntry {
 	final int position;
 	final String board;
 
-	private final Cache cache;
-
 	private final TimedType type;
 
 
@@ -68,7 +66,6 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
-		this.cache = plugin.getCache();
 
 		if(plugin != null && !formatStringsSet) {
 			formatStringsSet = true;
@@ -101,15 +98,23 @@ public class StatEntry {
 		if(score == 0 && plugin.getMessages().getRawString("loading.text").equals(playerName)) {
 			return "...";
 		}
-		Messages messages = cache.getPlugin().getMessages();
 		if(!hasPlayer()) {
-			if(score == -1) {
-				return messages.getRawString("no-data.lb.value");
-			} else if(score == -2) {
-				return messages.getRawString("no-data.rel.value");
+			if(plugin != null) {
+				Messages messages = plugin.getMessages();
+				if(score == -1) {
+					return messages.getRawString("no-data.lb.value");
+				} else if(score == -2) {
+					return messages.getRawString("no-data.rel.value");
+				} else {
+					return plugin.getMessages().getRawString("loading.short");
+				}
 			} else {
-				return plugin.getMessages().getRawString("loading.short");
+				return "No Plugin!";
 			}
+		}
+
+		if(plugin == null) {
+			return addCommas(score);
 		}
 		return plugin.getPlaceholderFormatter().toFormat(score, board);
 	}
@@ -186,7 +191,7 @@ public class StatEntry {
 			return "BDNE";
 		}
 		if(!hasPlayer()) {
-			if(cache != null) {
+			if(plugin != null) {
 				if(score == -1) {
 					return plugin.getMessages().getRawString("no-data.lb.value");
 				} else if(score == -2) {

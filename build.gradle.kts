@@ -1,7 +1,7 @@
 plugins {
     java
     `maven-publish`
-    id("com.github.johnrengelman.shadow").version("6.1.0")
+    id("com.gradleup.shadow").version("8.3.9")
     id("io.github.slimjar").version("1.3.0")
 }
 
