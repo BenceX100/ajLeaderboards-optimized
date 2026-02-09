@@ -65,7 +65,7 @@ public class TopManager {
         fetchService = new ThreadPoolExecutor(
                 t, t,
                 keepAlive, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(1000000, true),
+                new LinkedBlockingQueue<>(1000000),
                 threadFactory
         );
         fetchService.allowCoreThreadTimeOut(true);
