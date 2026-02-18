@@ -24,7 +24,7 @@ public class Default extends Format {
 
     @Override
     public String toFormat(double input) {
-        double e = Math.pow(10, input);
+        double e = Math.pow(10, plugin.getAConfig().getInt("round-decimal-places"));
         return addCommas(Math.round(input * e) / e);
     }
 
