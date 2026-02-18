@@ -42,9 +42,9 @@ public class Cache {
 					"(t2.'%s' = t1.'%s' AND t2.namecache > t1.namecache)" + // simple tiebreaker to make sure it's at least consistent
 			") as position from '%s' as t1 where id = ?";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
-			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))",
-			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))"
+			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
+			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))",
+			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(

@@ -147,6 +147,11 @@ require-zero-validation: true
 #   And if you want to make sure that the board called "vault_eco_balance" always shows 2 decimal places, you would add "vault_eco_balance%2" below.
 show-zero-decimal: []
 
+# How many decimal places should we round to when displaying numbers on the leaderboard?
+# ajLeaderboards can store up to 5 decimal places, but for looks it will round to 2 by default.
+#  Default: 2
+round-decimal-places: 2
+
 # In boards listed here, anyone with a score of `0` will not be added to the leaderboard.
 dont-add-zero: []
 
