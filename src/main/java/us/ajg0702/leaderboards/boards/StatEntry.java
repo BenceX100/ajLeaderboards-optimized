@@ -320,6 +320,7 @@ public class StatEntry {
 		symbols.setDecimalSeparator(decimal);
 		DecimalFormat df = new DecimalFormat("#,###.##", symbols);
 		df.setGroupingUsed(useComma);
+		df.setMaximumFractionDigits(plugin.getAConfig().getInt("round-decimal-places"));
 		if(board != null) {
 			for (String s : plugin.getAConfig().getStringList("show-zero-decimal")) {
 				if(s.startsWith("%") || s.endsWith("%")) {

@@ -6,11 +6,6 @@ import us.ajg0702.leaderboards.formatting.Format;
 import static us.ajg0702.leaderboards.boards.StatEntry.addCommas;
 
 public class Default extends Format {
-    private final LeaderboardPlugin plugin;
-
-    public Default(LeaderboardPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public boolean matches(String output, String placeholder) {
@@ -24,8 +19,7 @@ public class Default extends Format {
 
     @Override
     public String toFormat(double input) {
-        double e = Math.pow(10, plugin.getAConfig().getInt("round-decimal-places"));
-        return addCommas(Math.round(input * e) / e);
+        return addCommas(input);
     }
 
     @Override
