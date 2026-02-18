@@ -13,10 +13,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlaceholderFormatter {
-    private final Format defaultFormat = new Default();
+    private final Format defaultFormat;
     private final List<Format> formats;
 
     public PlaceholderFormatter(LeaderboardPlugin plugin) {
+        defaultFormat = new Default(plugin);
         formats = Arrays.asList(
                 new Time(plugin),
                 new ColonTime(),
