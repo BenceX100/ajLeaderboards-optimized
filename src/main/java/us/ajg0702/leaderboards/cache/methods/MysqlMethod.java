@@ -69,9 +69,12 @@ public class MysqlMethod implements CacheMethod {
                 int version;
                 if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
                 try (Statement stmt = conn.createStatement();
-                     ResultSet rs = stmt.executeQuery("show table status where Name='"+tableName+"'")) {
-                    rs.next();
-                    version = Integer.parseInt(rs.getString("COMMENT"));
+                    ResultSet rs = stmt.executeQuery("show table status where Name='"+tableName+"'")) {
+                    if(rs.next()) {
+                        version = Integer.parseInt(rs.getString("COMMENT"));
+                    } else {
+                        version = 0;
+                    }
                 } catch(NumberFormatException e) {
                     version = 0;
                 } catch(SQLException e) {

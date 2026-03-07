@@ -194,11 +194,9 @@ public class TopManager {
 
         if(positionPlayerCache.size() > 10000) {
             Iterator<UUID> it = positionPlayerCache.keySet().iterator();
-            while(positionPlayerCache.size() > 10000) {
-                if(it.hasNext()) {
-                    it.next();
-                    it.remove();
-                }
+            while(positionPlayerCache.size() > 10000 && it.hasNext()) {
+                it.next();
+                it.remove();
             }
         }
     }

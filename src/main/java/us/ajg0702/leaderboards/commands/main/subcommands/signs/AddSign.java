@@ -77,6 +77,10 @@ public class AddSign extends SubCommand {
             sender.sendMessage(message("&cInvalid number! Please enter a real number for the position.\n&7Usage: /"+label+" signs add <board> <position>"));
             return;
         }
+        if(pos <= 0) {
+            sender.sendMessage(message("&cPosition must be >= 0!\n&7Usage: /"+label+" signs add <board> <position>"));
+            return;
+        }
         Block target = p.getTargetBlock(null, 10);
         if(!target.getType().toString().contains("SIGN")) {
             sender.sendMessage(message("&cThe block you are looking at (" + target.getType() + ") is not a sign! Please look at a sign to set."));

@@ -126,6 +126,9 @@ public class Cache {
 			}
 			return StatEntry.boardNotFound(position, board, type);
 		}
+		if(position <= 0) {
+			return StatEntry.error(position, board, type);
+		}
 		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		try (Connection conn = method.getConnection()) {
 			String sortBy = type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta";
