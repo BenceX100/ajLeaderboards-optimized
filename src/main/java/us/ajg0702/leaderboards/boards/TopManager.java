@@ -7,7 +7,6 @@ import com.google.common.cache.RemovalCause;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.Debug;
@@ -17,9 +16,6 @@ import us.ajg0702.leaderboards.boards.keys.ExtraKey;
 import us.ajg0702.leaderboards.boards.keys.PlayerBoardType;
 import us.ajg0702.leaderboards.boards.keys.PositionBoardType;
 import us.ajg0702.leaderboards.cache.BlockingFetch;
-import us.ajg0702.leaderboards.cache.CacheMethod;
-import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
-import us.ajg0702.leaderboards.nms.legacy.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
 import java.util.*;
@@ -28,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
 
-    private final ThreadPoolExecutor fetchService;
+    private final ExecutorService fetchService;
     //private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     private final AtomicInteger fetching = new AtomicInteger(0);
@@ -43,16 +39,7 @@ public class TopManager {
     private final LeaderboardPlugin plugin;
     public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
         plugin = pl;
-        CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
-        int keepAlive = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
-        fetchService = new ThreadPoolExecutor(
-                t, t,
-                keepAlive, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(1000000, true),
-                ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH")
-        );
-        fetchService.allowCoreThreadTimeOut(true);
+        fetchService = Executors.newFixedThreadPool(Math.max(8, plugin.getAConfig().getInt("max-fetching-threads"))); // limit threads to 8
         plugin.getScheduler().runTaskTimerAsynchronously(() -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
@@ -416,7 +403,7 @@ public class TopManager {
     }
     public List<String> fetchBoards() {
         int f = fetching.getAndIncrement();
-        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+f);
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.toString()+") (boards): "+f);
         boardCache = plugin.getCache().getBoards();
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Finished fetching boards");
         removeFetching();
@@ -598,18 +585,18 @@ public class TopManager {
     }
 
     public int getActiveFetchers() {
-        return fetchService.getActiveCount();
+        return 0;
     }
     public int getMaxFetchers() {
-        return fetchService.getMaximumPoolSize();
+        return 0;
     }
 
     public int getQueuedTasks() {
-        return fetchService.getQueue().size();
+        return 0;
     }
 
     public int getWorkers() {
-        return fetchService.getPoolSize();
+        return 0;
     }
 
     public boolean boardExists(String board) {

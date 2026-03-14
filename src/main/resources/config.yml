@@ -214,7 +214,7 @@ min-player-cache-time: 5000
 # I would __not__ recommend setting this below 16.
 # Requires a server restart to change
 #  Default: 70
-max-fetching-threads: 70
+max-fetching-threads: 3
 
 # For how long (in milliseconds) should we keep a non-core thread alive before killing it?
 # This allows us to reuse threads instead of creating new ones every time we need to fetch something.
